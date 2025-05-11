@@ -21,7 +21,7 @@ table Rubros
 		mode: import
 		source =
 				let
-				    Origen = Excel.Workbook(File.Contents("C:\Users\IgnacioTrafigante\Desktop\Capacitacion\POWERBI\PROYECOT NUEVO\ORGANIZACIONES.xlsx"), null, true),
+				    Origen = Excel.Workbook(File.Contents("PRIVADO"), null, true),
 				    Rubros_Sheet = Origen{[Item="Rubros",Kind="Sheet"]}[Data],
 				    #"Tipo cambiado" = Table.TransformColumnTypes(Rubros_Sheet,{{"Column1", type text}, {"Column2", type text}}),
 				    #"Encabezados promovidos" = Table.PromoteHeaders(#"Tipo cambiado", [PromoteAllScalars=true]),
