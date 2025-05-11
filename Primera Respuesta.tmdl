@@ -114,7 +114,7 @@ table 'Primera Respuesta'
 		mode: import
 		source =
 				let
-				    Origen = Csv.Document(File.Contents("C:\Users\IgnacioTrafigante\Desktop\MAIL SEMANAL 2025\MAYO 2DA\Efficiency_First_resolution_time_median_default_Analizar_05112025_0648.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Origen = Csv.Document(File.Contents("PRIVADO"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
 				    #"Encabezados promovidos" = Table.PromoteHeaders(Origen, [PromoteAllScalars=true]),
 				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"ID del ticket", Int64.Type}, {"Estado del ticket", type text}, {"Grupo del ticket", type text}, {"Nombre del agente asignado", type text}, {"Ticket creado - Fecha", type date}, {"Ticket resuelto - Fecha", type date}, {"Tiempo de primera respuesta (min)", Int64.Type}}),
 				    #"Columnas quitadas" = Table.RemoveColumns(#"Tipo cambiado",{"Grupo del ticket", "Estado del ticket", "Nombre del agente asignado", "Ticket resuelto - Fecha"}),
