@@ -113,7 +113,7 @@ table DATA
 		mode: import
 		source =
 				let
-				    Origen = GoogleSheets.Contents("https://docs.google.com/spreadsheets/d/12nrq3N03MaZMhaDK-qwj9SINl7POvPr_kAZ_u-2620c/edit?usp=sharing"),
+				    Origen = GoogleSheets.Contents("PRIVADO"),
 				    DATA_Table = Origen{[name="DATA",ItemKind="Table"]}[Data],
 				    #"Encabezados promovidos" = Table.PromoteHeaders(DATA_Table, [PromoteAllScalars=true]),
 				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"ID", Int64.Type}, {"Estado", type text}, {"Estado del ticket", Int64.Type }, {"Índice de satisfacción", type text}, {"Organización", type text}, {"Solicitado", type date}, {"Resuelto", type date}, {"Modulo", type text}, {"Tipo", type text}}),
