@@ -31,7 +31,7 @@ table ABRIL
 		mode: import
 		source =
 				let
-				    Origen = Excel.Workbook(File.Contents("C:\Users\IgnacioTrafigante\Desktop\Capacitacion\POWERBI\PROYECOT NUEVO\FECHAS NOMBRE.xlsx"), null, true),
+				    Origen = Excel.Workbook(File.Contents("PRIVADO"), null, true),
 				    FEBRERO_Sheet = Origen{[Item="ABRIL",Kind="Sheet"]}[Data],
 				    #"Encabezados promovidos" = Table.PromoteHeaders(FEBRERO_Sheet, [PromoteAllScalars=true]),
 				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"FECHA", type date}, {"DIANOMBRE", type text}}),
