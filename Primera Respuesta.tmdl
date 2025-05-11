@@ -1,0 +1,132 @@
+table 'Primera Respuesta'
+	lineageTag: 004e5a3b-29ff-470f-baa4-95fb432000e6
+
+	measure Cantidad_Tickets_Por_Rango = ```
+			COUNTROWS('Primera Respuesta')
+			
+			```
+		formatString: 0
+		lineageTag: 479e3ecf-d86f-4fb4-98b9-ae8f4add279b
+
+	measure Promedio_Minutos_1ra_Respuesta = ```
+			
+			AVERAGE('Primera Respuesta'[Minutos 1ra Respuesta])
+			
+			```
+		lineageTag: c62a6806-9375-4818-9c76-041c018e4b03
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'ID del ticket'
+		dataType: string
+		lineageTag: de3c67b2-229d-4111-83f0-c2d0a47c17eb
+		summarizeBy: none
+		sourceColumn: ID del ticket
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Ticket creado - Fecha'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b3984482-6827-46eb-aa36-84c05122afe1
+		summarizeBy: none
+		sourceColumn: Ticket creado - Fecha
+
+		variation Variación
+			isDefault
+			relationship: 0d7af051-ec64-41ef-8ae5-b66b81a2ebe7
+			defaultHierarchy: LocalDateTable_28a40f0b-72af-4149-8244-62636795e07d.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Minutos 1ra Respuesta'
+		dataType: int64
+		formatString: 0
+		lineageTag: 10cc674f-b4ea-408f-b0fe-aa9e4a4972f0
+		summarizeBy: none
+		sourceColumn: Minutos 1ra Respuesta
+
+		annotation SummarizationSetBy = User
+
+	column 'Rango en Horas' = ```
+			
+			SWITCH(
+			    TRUE(),
+			    'Primera Respuesta'[Minutos 1ra Respuesta] >= 0 &&
+			    'Primera Respuesta'[Minutos 1ra Respuesta] <= 60,         "0-1 Horas",
+			
+			    'Primera Respuesta'[Minutos 1ra Respuesta] >= 61 &&
+			    'Primera Respuesta'[Minutos 1ra Respuesta] <= 120,        "1-2 Horas",
+			
+			    'Primera Respuesta'[Minutos 1ra Respuesta] >= 121 &&
+			    'Primera Respuesta'[Minutos 1ra Respuesta] <= 180,        "2-3 Horas",
+			
+			    'Primera Respuesta'[Minutos 1ra Respuesta] >= 181 &&
+			    'Primera Respuesta'[Minutos 1ra Respuesta] <= 240,        "3-4 Horas",
+			
+			    'Primera Respuesta'[Minutos 1ra Respuesta] >= 241 &&
+			    'Primera Respuesta'[Minutos 1ra Respuesta] <= 300,        "4-5 Horas",
+			
+			    'Primera Respuesta'[Minutos 1ra Respuesta] >= 301 &&
+			    'Primera Respuesta'[Minutos 1ra Respuesta] <= 360,        "5-6 Horas",
+			
+			    'Primera Respuesta'[Minutos 1ra Respuesta] >= 361 &&
+			    'Primera Respuesta'[Minutos 1ra Respuesta] <= 420,        "6-7 Horas",
+			
+			    'Primera Respuesta'[Minutos 1ra Respuesta] >= 421 &&
+			    'Primera Respuesta'[Minutos 1ra Respuesta] <= 480,        "7-8 Horas",
+			
+			    'Primera Respuesta'[Minutos 1ra Respuesta] >= 481 &&
+			    'Primera Respuesta'[Minutos 1ra Respuesta] <= 1440,       "8-24 Horas",
+			
+			    'Primera Respuesta'[Minutos 1ra Respuesta] > 1440,        "Más de 24 Horas"
+			)
+			
+			```
+		lineageTag: ba64a5ae-c526-4bd3-b501-39e32c0a8bd8
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Orden_Rango = ```
+			
+			SWITCH(
+			    'Primera Respuesta'[Rango en Horas],
+			    "0-1 Horas", 1,
+			    "1-8 Horas", 2,
+			    "8-24 Horas", 3,
+			    "Más de 24 Horas", 4
+			)
+			
+			```
+		formatString: 0
+		lineageTag: 5d2c1b12-1e32-431c-86b5-7e0a8d547493
+		summarizeBy: sum
+		sortByColumn: 'Rango en Horas'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Primera Respuesta' = m
+		mode: import
+		source =
+				let
+				    Origen = Csv.Document(File.Contents("C:\Users\IgnacioTrafigante\Desktop\MAIL SEMANAL 2025\MAYO 2DA\Efficiency_First_resolution_time_median_default_Analizar_05112025_0648.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Encabezados promovidos" = Table.PromoteHeaders(Origen, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"ID del ticket", Int64.Type}, {"Estado del ticket", type text}, {"Grupo del ticket", type text}, {"Nombre del agente asignado", type text}, {"Ticket creado - Fecha", type date}, {"Ticket resuelto - Fecha", type date}, {"Tiempo de primera respuesta (min)", Int64.Type}}),
+				    #"Columnas quitadas" = Table.RemoveColumns(#"Tipo cambiado",{"Grupo del ticket", "Estado del ticket", "Nombre del agente asignado", "Ticket resuelto - Fecha"}),
+				    #"Tipo cambiado1" = Table.TransformColumnTypes(#"Columnas quitadas",{{"Tiempo de primera respuesta (min)", Int64.Type}, {"ID del ticket", type text}}),
+				    #"Filas filtradas" = Table.SelectRows(#"Tipo cambiado1", each ([#"Tiempo de primera respuesta (min)"] <> null and [#"Tiempo de primera respuesta (min)"] <> 0 and [#"Tiempo de primera respuesta (min)"] <> 359)),
+				    #"Columnas con nombre cambiado" = Table.RenameColumns(#"Filas filtradas",{{"Tiempo de primera respuesta (min)", "Min Primera Respuesta"}}),
+				    #"Filas filtradas1" = Table.SelectRows(#"Columnas con nombre cambiado", each ([ID del ticket] <> "10800" and [ID del ticket] <> "10813" and [ID del ticket] <> "11033" and [ID del ticket] <> "11039")),
+				    #"Columnas con nombre cambiado1" = Table.RenameColumns(#"Filas filtradas1",{{"Min Primera Respuesta", "Minutos 1ra Respuesta"}})
+				in
+				    #"Columnas con nombre cambiado1"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+

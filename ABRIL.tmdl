@@ -1,0 +1,45 @@
+table ABRIL
+	lineageTag: c01420b0-492b-48b1-a716-24f44857402a
+
+	column FECHA
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: d24fb492-0e30-43c4-8f65-5cc8e3fe3412
+		summarizeBy: none
+		sourceColumn: FECHA
+
+		variation Variación
+			isDefault
+			relationship: 66420da6-934d-4c27-b3b9-fee8e4a8805d
+			defaultHierarchy: LocalDateTable_38d7f4ca-7f5f-4b8d-b613-453d0a7103f0.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Dia Semana'
+		dataType: string
+		lineageTag: ff8b8bbd-3356-449c-a880-a89b0fba9a54
+		summarizeBy: none
+		sourceColumn: Dia Semana
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ABRIL = m
+		mode: import
+		source =
+				let
+				    Origen = Excel.Workbook(File.Contents("C:\Users\IgnacioTrafigante\Desktop\Capacitacion\POWERBI\PROYECOT NUEVO\FECHAS NOMBRE.xlsx"), null, true),
+				    FEBRERO_Sheet = Origen{[Item="ABRIL",Kind="Sheet"]}[Data],
+				    #"Encabezados promovidos" = Table.PromoteHeaders(FEBRERO_Sheet, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"FECHA", type date}, {"DIANOMBRE", type text}}),
+				    #"Columnas con nombre cambiado" = Table.RenameColumns(#"Tipo cambiado",{{"DIANOMBRE", "Dia Semana"}})
+				in
+				    #"Columnas con nombre cambiado"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

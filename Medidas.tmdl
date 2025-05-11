@@ -1,0 +1,127 @@
+table Medidas
+	lineageTag: c4e32e82-6042-4568-bc24-d97e9e77d7b2
+
+	measure Tickets = COUNTROWS(DATA)
+		formatString: 0
+		lineageTag: 0477dd4a-b554-4d07-a2d3-35e786c04341
+
+	measure Día_Semana = ```
+			FORMAT(SELECTEDVALUE(DATA[Solicitado]), "dddd")
+			
+			```
+		lineageTag: 5eda73b7-99d3-468e-8300-fb1fb35917d3
+
+	measure Clientes_Menos_Tickets = ```
+			
+			IF([Tickets] <= 2, [Tickets], BLANK())
+			
+			```
+		formatString: 0
+		lineageTag: 20812d3e-f44e-48c1-b6b4-c05eba5cb034
+
+	measure Clientes_Mas_Tickets = ```
+			
+			IF(
+			    RANKX(
+			        ALL( DATA[Organización] ),    -- Reemplaza con la columna en la que identifiques al cliente
+			        [Tickets],
+			        ,
+			        DESC
+			    ) <= 10,
+			    [Tickets],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0
+		lineageTag: 19afbf89-4e98-4723-9e4e-a83309079692
+
+	measure Tickets_Por_Modulo = COUNTROWS(DATA)
+		formatString: 0
+		lineageTag: be711268-0429-47c4-a67f-c25d8f500c58
+
+	measure Modulos_Mas_Soporte = ```
+			
+			IF([Tickets_Por_Modulo] > 20, [Tickets_Por_Modulo], BLANK())
+			
+			```
+		formatString: 0
+		lineageTag: ec0ca63a-8be7-4583-a55a-2c4008100eed
+
+	measure Modulos_Menos_Soporte = ```
+			
+			IF([Tickets_Por_Modulo] <= 5, [Tickets_Por_Modulo], BLANK())
+			
+			```
+		formatString: 0
+		lineageTag: c4fa4161-33ca-458d-83d1-3803ff18f40f
+
+	measure 'Escalados pendientes Total' = 15
+		formatString: 0
+		lineageTag: dda6bb2d-da01-4a65-8a27-ab2dd0927da7
+
+	measure 'Mejoras Total pendientes' = 69
+		formatString: 0
+		lineageTag: cd719bb5-811d-43a4-a27f-692d0faf1680
+
+	measure 'Tasa de cobertura Febrero' = 98.11
+		lineageTag: 66eb2d20-baff-48d4-a8c6-3ba43e5cc404
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Views tutoriales' = 694
+		formatString: 0
+		lineageTag: 25525cda-f3b6-4303-bd88-7093868a123c
+
+	measure Filtrar_Satisfaccion = ```
+			
+			IF(
+			    SELECTEDVALUE(DATA[Índice de satisfacción]) IN {"Buena", "Mala", "Buena con comentario"},
+			    SELECTEDVALUE(DATA[Índice de satisfacción]), 
+			    BLANK()
+			)
+			
+			```
+		lineageTag: 155b4749-750e-4d58-8a12-06df1d0330fc
+
+	measure 'Mejora MES' = ```
+			
+			CALCULATE (
+			    COUNTROWS (DATA),
+			    DATA[Estado] = "mejora en analisis"
+			)
+			
+			```
+		formatString: 0
+		lineageTag: 385ad122-f50b-4fe8-bcce-61e9b04f5487
+
+	column Columna1
+		lineageTag: dbbd4a87-9b35-4bfa-ab34-0cb27a68692b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Columna1]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Z
+		isHidden
+		lineageTag: f8b862bc-0fb8-41d3-89e7-9d2ab4f40d11
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Z]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Medidas = calculated
+		mode: import
+		source =
+				DATATABLE(
+				    "Columna1", STRING,
+				    "Z", STRING,
+				    {
+				        {"Y", "Y"}
+				    }
+				)
+
+	annotation PBI_Id = 9ef5818d72fe4e26b18e6f5bcdd7c803
+

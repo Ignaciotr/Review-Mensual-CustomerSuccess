@@ -1,0 +1,139 @@
+table DATA
+	lineageTag: 665e9d1a-3a26-47a8-891c-90442a3b55bd
+
+	column Estado
+		dataType: string
+		lineageTag: 235fc3c5-d5ea-4a7a-a750-4d5365e5479d
+		summarizeBy: none
+		sourceColumn: Estado
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Índice de satisfacción'
+		dataType: string
+		lineageTag: ee757b70-1d4c-4b11-a2b1-a7582090bd65
+		summarizeBy: none
+		sourceColumn: Índice de satisfacción
+
+		annotation SummarizationSetBy = Automatic
+
+	column Organización
+		dataType: string
+		lineageTag: 65cf1506-6551-4629-a042-d182353465df
+		summarizeBy: none
+		sourceColumn: Organización
+
+		annotation SummarizationSetBy = Automatic
+
+	column Solicitado
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: 120ec05c-5ba2-4550-8fa5-502483816ef0
+		summarizeBy: none
+		sourceColumn: Solicitado
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Resuelto
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: a9a7cd86-298e-4e2b-a5c5-9c00bf1e44ca
+		summarizeBy: none
+		sourceColumn: Resuelto
+
+		variation Variación
+			isDefault
+			relationship: 5d1b2af3-711a-4853-88df-d34dcfeab1be
+			defaultHierarchy: LocalDateTable_29e6f25a-69d5-4928-a268-a28e0449f1e8.'Jerarquía de fechas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Modulo
+		dataType: string
+		lineageTag: ed50026d-549e-4537-aa18-621a62615657
+		summarizeBy: none
+		sourceColumn: Modulo
+
+		annotation SummarizationSetBy = Automatic
+
+	column ID
+		dataType: string
+		lineageTag: 1fd37b1e-91c8-489f-885b-9c058917d175
+		summarizeBy: none
+		sourceColumn: ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tipo
+		dataType: string
+		isHidden
+		lineageTag: 5754d675-ddff-426b-b91c-9f479dec7927
+		summarizeBy: none
+		sourceColumn: Tipo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Finalizadodias = ```
+			DATEDIFF(DATA[Solicitado], DATA[Resuelto], DAY)
+			
+			```
+		formatString: 0
+		lineageTag: 6a41bcfe-fc04-4b50-b9b2-7935642656d7
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column Clasificación_Finalizadodias = ```
+			
+			SWITCH(
+			    TRUE(),
+			    DATA[Finalizadodias] >= 0 && DATA[Finalizadodias] <= 1, "0 - 1 días",
+			    DATA[Finalizadodias] >= 2 && DATA[Finalizadodias] <= 5, "2 - 5 días",
+			    DATA[Finalizadodias] >= 6 && DATA[Finalizadodias] <= 10, "6 - 10 días",
+			    DATA[Finalizadodias] > 10, "Más de 10 días"
+			)
+			
+			```
+		lineageTag: a110ae60-1362-4dc3-bfec-eaa3d326d0ac
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DATA = m
+		mode: import
+		source =
+				let
+				    Origen = GoogleSheets.Contents("https://docs.google.com/spreadsheets/d/12nrq3N03MaZMhaDK-qwj9SINl7POvPr_kAZ_u-2620c/edit?usp=sharing"),
+				    DATA_Table = Origen{[name="DATA",ItemKind="Table"]}[Data],
+				    #"Encabezados promovidos" = Table.PromoteHeaders(DATA_Table, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"ID", Int64.Type}, {"Estado", type text}, {"Estado del ticket", Int64.Type }, {"Índice de satisfacción", type text}, {"Organización", type text}, {"Solicitado", type date}, {"Resuelto", type date}, {"Modulo", type text}, {"Tipo", type text}}),
+				    #"Valor reemplazado" = Table.ReplaceValue(#"Tipo cambiado","Cerrado","Finalizado",Replacer.ReplaceText,{"Estado"}),
+				    #"Valor reemplazado1" = Table.ReplaceValue(#"Valor reemplazado","Resuelto","Finalizado",Replacer.ReplaceText,{"Estado"}),
+				    #"Valor reemplazado2" = Table.ReplaceValue(#"Valor reemplazado1","Abierto","Escalado",Replacer.ReplaceText,{"Estado"}),
+				    #"Valor reemplazado3" = Table.ReplaceValue(#"Valor reemplazado2","Pendiente","Mejora En Analisis",Replacer.ReplaceText,{"Estado"}),
+				    #"Valor reemplazado4" = Table.ReplaceValue(#"Valor reemplazado3","Ofrecida","Sin Calificar",Replacer.ReplaceText,{"Índice de satisfacción"}),
+				    #"Valor reemplazado5" = Table.ReplaceValue(#"Valor reemplazado4","No ofrecida","Sin Calificar",Replacer.ReplaceText,{"Índice de satisfacción"}),
+				    #"Filas filtradas" = Table.SelectRows(#"Valor reemplazado5", each true),
+				    #"Valor reemplazado6" = Table.ReplaceValue(#"Filas filtradas","","Sin Completar",Replacer.ReplaceValue,{"Modulo"}),
+				    #"Filas filtradas1" = Table.SelectRows(#"Valor reemplazado6", each [Solicitado] >= #date(2025, 4, 1) and [Solicitado] <= #date(2025, 4, 30)),
+				    #"Valor reemplazado7" = Table.ReplaceValue(#"Filas filtradas1","","Sin Organizacion",Replacer.ReplaceValue,{"Organización"}),
+				    #"Filas ordenadas" = Table.Sort(#"Valor reemplazado7",{{"Resuelto", Order.Ascending}}),
+				    #"Columnas quitadas" = Table.RemoveColumns(#"Filas ordenadas",{"Estado del ticket"}),
+				    #"Tipo cambiado1" = Table.TransformColumnTypes(#"Columnas quitadas",{{"ID", type text}})
+				in
+				    #"Tipo cambiado1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

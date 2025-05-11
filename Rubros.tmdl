@@ -1,0 +1,35 @@
+table Rubros
+	lineageTag: 603ecc83-378e-436b-bfd7-92270efc80d2
+
+	column Organización
+		dataType: string
+		lineageTag: 7cba8a84-d61b-4806-8b30-36eb6381f4a5
+		summarizeBy: none
+		sourceColumn: Organización
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rubro
+		dataType: string
+		lineageTag: 7595e1dd-3cb3-4516-a7e4-c9603a96df86
+		summarizeBy: none
+		sourceColumn: Rubro
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Rubros = m
+		mode: import
+		source =
+				let
+				    Origen = Excel.Workbook(File.Contents("C:\Users\IgnacioTrafigante\Desktop\Capacitacion\POWERBI\PROYECOT NUEVO\ORGANIZACIONES.xlsx"), null, true),
+				    Rubros_Sheet = Origen{[Item="Rubros",Kind="Sheet"]}[Data],
+				    #"Tipo cambiado" = Table.TransformColumnTypes(Rubros_Sheet,{{"Column1", type text}, {"Column2", type text}}),
+				    #"Encabezados promovidos" = Table.PromoteHeaders(#"Tipo cambiado", [PromoteAllScalars=true]),
+				    #"Tipo cambiado1" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"Organización", type text}, {"Rubro", type text}})
+				in
+				    #"Tipo cambiado1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

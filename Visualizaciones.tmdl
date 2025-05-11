@@ -1,0 +1,62 @@
+table Visualizaciones
+	lineageTag: 85dac270-d100-461d-90b8-35e293953097
+
+	measure 'IMPLEMENTACIONES FEBRERO' = 14
+		formatString: 0
+		lineageTag: 3750449f-cbb0-4de0-9a18-913ec4b26b76
+
+	measure 'IMPLEMENTADOS FASE 1' = 4
+		formatString: 0
+		lineageTag: 6eee26cc-9df0-4a8e-be2b-82e303dfbefd
+
+	measure PRO = ```
+			10
+			
+			```
+		formatString: 0
+		lineageTag: 4f76d7c6-a322-4643-84bb-dab95c5b7e07
+
+	measure PYME = 4
+		formatString: 0
+		lineageTag: cd353698-ce56-4c55-b5c9-43b6168e80e2
+
+	measure 'FRENADO POR EL CLIENTE' = 4
+		formatString: 0
+		lineageTag: 552b5dd7-3cf5-4d6c-b25b-61b9a14bd252
+
+	measure 'SIN RESPUESTA' = 4
+		formatString: 0
+		lineageTag: 5c5369c4-2430-4127-b5b9-f54e014b5972
+
+	column 'Título del artículo'
+		dataType: string
+		lineageTag: d8ea2525-e6ba-4eb1-8239-98400b8ba988
+		summarizeBy: none
+		sourceColumn: Título del artículo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Visualizaciones de artículos'
+		dataType: int64
+		formatString: 0
+		lineageTag: 56f97807-e183-4217-82c6-eb5eb4407385
+		summarizeBy: sum
+		sourceColumn: Visualizaciones de artículos
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Visualizaciones = m
+		mode: import
+		source =
+				let
+				    Origen = Excel.Workbook(File.Contents("C:\Users\IgnacioTrafigante\Desktop\MAIL SEMANAL 2025\MAYO 2DA\Knowledge_Base_Article_engagement_default_05112025_0653.xlsx"), null, true),
+				    Visualizaciones_Sheet = Origen{[Item="Visualizaciones",Kind="Sheet"]}[Data],
+				    #"Encabezados promovidos" = Table.PromoteHeaders(Visualizaciones_Sheet, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"Título del artículo", type text}, {"Visualizaciones de artículos", Int64.Type}})
+				in
+				    #"Tipo cambiado"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

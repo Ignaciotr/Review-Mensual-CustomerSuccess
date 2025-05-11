@@ -1,0 +1,30 @@
+relationship 5d1b2af3-711a-4853-88df-d34dcfeab1be
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DATA.Resuelto
+	toColumn: LocalDateTable_29e6f25a-69d5-4928-a268-a28e0449f1e8.Date
+
+relationship 66420da6-934d-4c27-b3b9-fee8e4a8805d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ABRIL.FECHA
+	toColumn: LocalDateTable_38d7f4ca-7f5f-4b8d-b613-453d0a7103f0.Date
+
+relationship 146bd43e-52a2-e4d8-9ef0-3e1dce8da699
+	crossFilteringBehavior: bothDirections
+	fromColumn: DATA.Solicitado
+	toColumn: ABRIL.FECHA
+
+relationship 0d7af051-ec64-41ef-8ae5-b66b81a2ebe7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Primera Respuesta'.'Ticket creado - Fecha'
+	toColumn: LocalDateTable_28a40f0b-72af-4149-8244-62636795e07d.Date
+
+relationship 396d6448-ae4a-ef38-6cad-e2c4acf06a99
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'Primera Respuesta'.'ID del ticket'
+	toColumn: DATA.ID
+
+relationship AutoDetected_b5c4c622-75f1-4d92-991d-189f643c2845
+	fromColumn: DATA.Organización
+	toColumn: Rubros.Organización
+
