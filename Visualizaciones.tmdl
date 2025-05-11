@@ -49,7 +49,7 @@ table Visualizaciones
 		mode: import
 		source =
 				let
-				    Origen = Excel.Workbook(File.Contents("C:\Users\IgnacioTrafigante\Desktop\MAIL SEMANAL 2025\MAYO 2DA\Knowledge_Base_Article_engagement_default_05112025_0653.xlsx"), null, true),
+				    Origen = Excel.Workbook(File.Contents("PRIVADO"), null, true),
 				    Visualizaciones_Sheet = Origen{[Item="Visualizaciones",Kind="Sheet"]}[Data],
 				    #"Encabezados promovidos" = Table.PromoteHeaders(Visualizaciones_Sheet, [PromoteAllScalars=true]),
 				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"Título del artículo", type text}, {"Visualizaciones de artículos", Int64.Type}})
